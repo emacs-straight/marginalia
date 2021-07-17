@@ -375,6 +375,7 @@ C interactive-only command
 m macro
 p pure
 s side-effect-free
+@ autoloaded
 ! advised
 - obsolete
 
@@ -400,6 +401,7 @@ t cl-type"
         ((commandp s) (if (get s 'interactive-only) "C" "c"))
         ((eq (car-safe (symbol-function s)) 'macro) "m")
         (t "f"))
+       (and (autoloadp (symbol-function s)) "@")
        (and (marginalia--advised s) "!")
        (and (get s 'byte-obsolete-info) "-")))
     (when (boundp s)
@@ -486,16 +488,16 @@ keybinding since CAND includes it."
   (when-let (sym (intern-soft cand))
     (marginalia--fields
      ((marginalia--symbol-class sym) :face 'marginalia-type)
-     ((if (seq-find (lambda (r) (string-match-p r cand))
-                    marginalia-censor-variables)
-          "*****"
-        (let ((val (if (boundp sym) (symbol-value sym) 'unbound))
-              (print-escape-newlines t)
-              (print-escape-control-characters t)
-              (print-escape-multibyte t)
-              (print-level 10)
-              (print-length marginalia-truncate-width))
-          (prin1-to-string val)))
+     ((cond
+       ((not (boundp sym)) "<unbound>")
+       ((seq-find (lambda (r) (string-match-p r cand)) marginalia-censor-variables) "*****")
+       (t (let ((val (symbol-value sym))
+                (print-escape-newlines t)
+                (print-escape-control-characters t)
+                (print-escape-multibyte t)
+                (print-level 10)
+                (print-length marginalia-truncate-width))
+            (prin1-to-string val))))
       :truncate (/ marginalia-truncate-width 2) :face 'marginalia-variable)
      ((documentation-property sym 'variable-documentation)
       :truncate marginalia-truncate-width :face 'marginalia-documentation))))
