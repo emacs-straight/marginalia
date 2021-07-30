@@ -76,13 +76,6 @@ It can also be set to an integer value of 1 or larger to force an offset."
 Set to `most-positive-fixnum' to always use a relative age, or 0 to never show a relative age."
   :type 'integer)
 
-(defvar marginalia-annotators nil)
-(defvar marginalia-annotators-light nil)
-(defvar marginalia-annotators-heavy nil)
-(make-obsolete-variable 'marginalia-annotators "Deprecated in favor of `marginalia-annotator-registry'." "0.5")
-(make-obsolete-variable 'marginalia-annotators-light "Deprecated in favor of `marginalia-annotator-registry'." "0.5")
-(make-obsolete-variable 'marginalia-annotators-heavy "Deprecated in favor of `marginalia-annotator-registry'." "0.5")
-
 (defcustom marginalia-annotator-registry
   (mapcar
    (lambda (x) (append x '(builtin none)))
@@ -144,7 +137,7 @@ determine it."
 (defcustom marginalia-censor-variables
   '("pass")
   "The values of variables matching any of these regular expressions is not shown."
-  :type '(repeat regexp))
+  :type '(repeat (choice symbol regexp)))
 
 (defcustom marginalia-command-categories
   '((imenu . imenu))
@@ -315,8 +308,8 @@ determine it."
 
 ;;;; Marginalia mode
 
-(defvar marginalia--fontified-file-attributes nil
-  "List of fontified file attributes.")
+(defvar marginalia--fontified-file-modes nil
+  "List of fontified file modes.")
 
 (defvar-local marginalia--cache nil
   "The cache, pair of list and hashtable.")
@@ -347,7 +340,7 @@ for performance profiling of the annotators.")
    (if-let (pos (string-match-p "\n" str))
        (substring str 0 pos)
      str)
-   width 0 32 "…"))
+   width 0 32 t))
 
 (defun marginalia--align (str)
   "Align STR at the right margin."
@@ -553,49 +546,57 @@ keybinding since CAND includes it."
         ((marginalia--function-doc sym) :truncate marginalia-truncate-width
          :face 'marginalia-documentation))))))
 
+(defun marginalia--variable-value (sym)
+  "Return the variable value of SYM as string."
+  (cond
+   ((not (boundp sym))
+    (propertize "<unbound>" 'face 'marginalia-null))
+   ((and marginalia-censor-variables
+         (let ((name (symbol-name sym)))
+           (seq-find (lambda (r)
+                       (if (symbolp r)
+                           (eq r sym)
+                         (string-match-p r name)))
+                     marginalia-censor-variables)))
+    (propertize "*****" 'face 'marginalia-null))
+   (t (let ((val (symbol-value sym)))
+        (pcase (symbol-value sym)
+          ('nil (propertize "nil" 'face 'marginalia-null))
+          ('t (propertize "t" 'face 'marginalia-true))
+          ((pred keymapp) (propertize "<keymap>" 'face 'marginalia-value))
+          ((pred hash-table-p) (propertize "<hash-table>" 'face 'marginalia-value))
+          ((and (pred functionp) (pred symbolp))
+           ;; NOTE: We are not consistent here, values are generally printed unquoted. But we
+           ;; make an exception for function symbols to visually distinguish them from symbols.
+           ;; I am not entirely happy with this, but we should not add quotation to every type.
+           (propertize (format "#'%s" val) 'face 'marginalia-function))
+          ((pred symbolp) (propertize (symbol-name val) 'face 'marginalia-symbol))
+          ((pred numberp) (propertize (number-to-string val) 'face 'marginalia-number))
+          (_ (let ((print-escape-newlines t)
+                   (print-escape-control-characters t)
+                   (print-escape-multibyte t)
+                   (print-level 10)
+                   (print-length marginalia-truncate-width))
+               (propertize
+                (prin1-to-string
+                 (if (stringp val)
+                     ;; Get rid of string properties to save some of the precious space
+                     (substring-no-properties
+                      val 0
+                      (min (length val) marginalia-truncate-width))
+                   val))
+                'face
+                (cond
+                 ((listp val) 'marginalia-list)
+                 ((stringp val) 'marginalia-string)
+                 (t 'marginalia-value))))))))))
+
 (defun marginalia-annotate-variable (cand)
   "Annotate variable CAND with its documentation string."
   (when-let (sym (intern-soft cand))
     (marginalia--fields
      ((marginalia--symbol-class sym) :face 'marginalia-type)
-     ((cond
-       ((not (boundp sym))
-        (propertize "<unbound>" 'face 'marginalia-null))
-       ((and marginalia-censor-variables
-             (seq-find (lambda (r) (string-match-p r cand)) marginalia-censor-variables))
-        "*****")
-       (t (let ((val (symbol-value sym)))
-            (pcase (symbol-value sym)
-              ('nil (propertize "nil" 'face 'marginalia-null))
-              ('t (propertize "t" 'face 'marginalia-true))
-              ((pred keymapp) (propertize "<keymap>" 'face 'marginalia-value))
-              ((pred hash-table-p) (propertize "<hash-table>" 'face 'marginalia-value))
-              ((and (pred functionp) (pred symbolp))
-               ;; NOTE: We are not consistent here, values are generally printed unquoted. But we
-               ;; make an exception for function symbols to visually distinguish them from symbols.
-               ;; I am not entirely happy with this, but we should not add quotation to every type.
-               (propertize (format "#'%s" val) 'face 'marginalia-function))
-              ((pred symbolp) (propertize (symbol-name val) 'face 'marginalia-symbol))
-              ((pred numberp) (propertize (number-to-string val) 'face 'marginalia-number))
-              (_ (let ((print-escape-newlines t)
-                       (print-escape-control-characters t)
-                       (print-escape-multibyte t)
-                       (print-level 10)
-                       (print-length marginalia-truncate-width))
-                   (propertize
-                    (prin1-to-string
-                     (if (stringp val)
-                         ;; Get rid of string properties to save some of the precious space
-                         (substring-no-properties
-                          val 0
-                          (min (length val) marginalia-truncate-width))
-                       val))
-                    'face
-                    (cond
-                     ((listp val) 'marginalia-list)
-                     ((stringp val) 'marginalia-string)
-                     (t 'marginalia-value)))))))))
-      :truncate (/ marginalia-truncate-width 2))
+     ((marginalia--variable-value sym) :truncate (/ marginalia-truncate-width 2))
      ((documentation-property sym 'variable-documentation)
       :truncate marginalia-truncate-width :face 'marginalia-documentation))))
 
@@ -733,20 +734,21 @@ The string is transformed according to `marginalia-bookmark-type-transformers'."
   "Annotate coding system CAND with its description."
   (marginalia--documentation (coding-system-doc-string (intern cand))))
 
-(defun marginalia-annotate-buffer (cand)
-  "Annotate buffer CAND with modification status, file name and major mode."
-  (when-let (buffer (get-buffer cand))
-    (marginalia--fields
-     ((format-mode-line '((:propertize "%1*%1+%1@" face marginalia-modified)
-                          marginalia--separator
-                          (7 (:propertize "%I" face marginalia-size))
-                          marginalia--separator
-                          ;; InactiveMinibuffer has 18 letters, but there are longer names.
-                          ;; For example Org-Agenda produces very long mode names.
-                          ;; Therefore we have to truncate.
-                          (20 (-20 (:propertize mode-name face marginalia-mode))))
-                        nil nil buffer))
-     ((if-let (proc (get-buffer-process buffer))
+(defun marginalia--buffer-status (buffer)
+  "Return the status of BUFFER as a string."
+  (format-mode-line '((:propertize "%1*%1+%1@" face marginalia-modified)
+                      marginalia--separator
+                      (7 (:propertize "%I" face marginalia-size))
+                      marginalia--separator
+                      ;; InactiveMinibuffer has 18 letters, but there are longer names.
+                      ;; For example Org-Agenda produces very long mode names.
+                      ;; Therefore we have to truncate.
+                      (20 (-20 (:propertize mode-name face marginalia-mode))))
+                    nil nil buffer))
+
+(defun marginalia--buffer-file (buffer)
+  "Return the file or process name of BUFFER."
+  (if-let (proc (get-buffer-process buffer))
           (format "(%s %s) %s"
                   proc (process-status proc)
                   (abbreviate-file-name (buffer-local-value 'default-directory buffer)))
@@ -760,7 +762,14 @@ The string is transformed according to `marginalia-bookmark-type-transformers'."
                                    (buffer-local-value 'default-directory buffer))))
               ((local-variable-p 'list-buffers-directory buffer)
                (buffer-local-value 'list-buffers-directory buffer)))
-             "")))
+             ""))))
+
+(defun marginalia-annotate-buffer (cand)
+  "Annotate buffer CAND with modification status, file name and major mode."
+  (when-let (buffer (get-buffer cand))
+    (marginalia--fields
+     ((marginalia--buffer-status buffer))
+     ((marginalia--buffer-file buffer)
       :truncate (/ marginalia-truncate-width 2)
       :face 'marginalia-file-name))))
 
@@ -793,28 +802,33 @@ These annotations are skipped for remote paths."
             (with-current-buffer (window-buffer win)
               (marginalia--remote-p (minibuffer-contents-no-properties)))))
       (marginalia--fields ("*Remote*" :face 'marginalia-documentation))
-    (when-let (attributes (file-attributes (substitute-in-file-name
-                                            (marginalia--full-candidate cand))
-                                           'integer))
+    (when-let (attrs (file-attributes (substitute-in-file-name
+                                       (marginalia--full-candidate cand))
+                                      'integer))
       (marginalia--fields
-       ((let ((uid (file-attribute-user-id attributes))
-              (gid (file-attribute-group-id attributes)))
-          (if (or (/= (user-uid) uid) (/= (group-gid) gid))
-              (format "%s:%s" (or (user-login-name uid) uid) (or (group-name gid) gid))
-            ""))
+       ((marginalia--file-owner attrs)
         :width 12 :face 'marginalia-file-owner)
-       ((marginalia--fontify-file-attributes (file-attribute-modes attributes)))
-       ((file-size-human-readable (file-attribute-size attributes))
+       ((marginalia--file-modes attrs))
+       ((file-size-human-readable (file-attribute-size attrs))
         :face 'marginalia-size :width -7)
-       ((marginalia--time (file-attribute-modification-time attributes))
+       ((marginalia--time (file-attribute-modification-time attrs))
         :face 'marginalia-date :width -12)))))
 
-(defun marginalia--fontify-file-attributes (attrs)
-  "Apply fontification to a file ATTRS string, e.g. `drwxrw-r--'."
+(defun marginalia--file-owner (attrs)
+  "Return file owner given ATTRS."
+  (let ((uid (file-attribute-user-id attrs))
+        (gid (file-attribute-group-id attrs)))
+    (if (or (/= (user-uid) uid) (/= (group-gid) gid))
+        (format "%s:%s" (or (user-login-name uid) uid) (or (group-name gid) gid))
+      "")))
+
+(defun marginalia--file-modes (attrs)
+  "Return fontified file modes given the ATTRS."
   ;; Without caching this can a be significant portion of the time
   ;; `marginalia-annotate-file' takes to execute. Caching improves performance
   ;; by about a factor of 20.
-  (or (car (member attrs marginalia--fontified-file-attributes))
+  (setq attrs (file-attribute-modes attrs))
+  (or (car (member attrs marginalia--fontified-file-modes))
       (progn
         (setq attrs (substring attrs)) ;; copy because attrs is about to be modified
         (dotimes (i (length attrs))
@@ -830,7 +844,7 @@ These annotations are skipped for remote paths."
              ((or ?s ?S ?t ?T) 'marginalia-file-priv-other)
              (_ 'marginalia-file-priv-rare))
            attrs))
-        (push attrs marginalia--fontified-file-attributes)
+        (push attrs marginalia--fontified-file-modes)
         attrs)))
 
 (defconst marginalia--time-relative
