@@ -45,11 +45,10 @@
 (defcustom marginalia-truncate-width 80
   "Maximum truncation width of annotation fields.
 
-This value is adjusted in the `minibuffer-setup-hook' depending
-on the `window-width'."
+This value is adjusted depending on the `window-width'."
   :type 'integer)
 
-(defcustom marginalia-separator-threshold 120
+(defcustom marginalia-separator-threshold 160
   "Use wider separator for window widths larger than this value."
   :type 'integer)
 
@@ -130,7 +129,8 @@ determine it."
     ("\\<input method\\>" . input-method)
     ("\\<charset\\>" . charset)
     ("\\<coding system\\>" . coding-system)
-    ("\\<minor mode\\>" . minor-mode))
+    ("\\<minor mode\\>" . minor-mode)
+    ("\\<[Ll]ibrary\\>" . library))
   "Associates regexps to match against minibuffer prompts with categories."
   :type '(alist :key-type regexp :value-type symbol))
 
@@ -288,7 +288,9 @@ determine it."
 ;;;; Pre-declarations for external packages
 
 (defvar bookmark-alist)
-(declare-function bookmark-get-bookmark-record "bookmark")
+(declare-function bookmark-get-handler "bookmark")
+(declare-function bookmark-get-filename "bookmark")
+(declare-function bookmark-get-front-context-string "bookmark")
 
 (defvar package--builtins)
 (defvar package-archive-contents)
@@ -322,10 +324,10 @@ for performance profiling of the annotators.")
 (defvar marginalia--separator "    "
   "Field separator.")
 
-(defvar marginalia--margin nil
+(defvar marginalia--margin 0
   "Right margin.")
 
-(defvar-local marginalia--this-command nil
+(defvar-local marginalia--command nil
   "Last command symbol saved in order to allow annotations.")
 
 (defvar-local marginalia--base-position 0
@@ -345,13 +347,11 @@ for performance profiling of the annotators.")
 (defun marginalia--align (str)
   "Align STR at the right margin."
   (unless (string-blank-p str)
-    (when marginalia--margin
-      (setq str (concat str marginalia--margin)))
     (concat " "
             (propertize
              " "
              'display
-             `(space :align-to (- right ,marginalia-align-offset ,(string-width str))))
+             `(space :align-to (- right ,marginalia--margin ,(string-width str))))
             str)))
 
 (cl-defmacro marginalia--field (field &key truncate format face width)
@@ -443,10 +443,9 @@ s side-effect-free
 - obsolete
 
 Variable:
-u custom
+u custom (U modified compared to global value)
 v variable
-l local
-* modified
+l local (L modified compared to default value)
 - obsolete
 
 Other:
@@ -469,9 +468,18 @@ t cl-type"
        (and (get s 'byte-obsolete-info) "-")))
     (when (boundp s)
       (concat
-       (and (local-variable-if-set-p s) "l")
-       (if (custom-variable-p s) "u" "v")
-       (and (ignore-errors (not (equal (symbol-value s) (default-value s)))) "*")
+       (when (local-variable-if-set-p s)
+         (if (ignore-errors
+               (not (equal (symbol-value s)
+                           (default-value s))))
+             "L" "l"))
+       (if (custom-variable-p s)
+           (if (ignore-errors
+                 (not (equal
+                       (symbol-value s)
+                       (eval (car (get s 'standard-value))))))
+               "U" "u")
+         "v")
        (and (get s 'byte-obsolete-variable) "-")))
     (and (facep s) "a")
     (and (fboundp 'cl-find-class) (cl-find-class s) "t"))))
@@ -690,7 +698,7 @@ keybinding since CAND includes it."
   "Return bookmark type string of BM.
 
 The string is transformed according to `marginalia-bookmark-type-transformers'."
-  (let ((handler (or (alist-get 'handler bm) 'bookmark-default-handler)))
+  (let ((handler (or (bookmark-get-handler bm) 'bookmark-default-handler)))
     ;; Some libraries use lambda handlers instead of symbols. For
     ;; example the function `xwidget-webkit-bookmark-make-record' is
     ;; affected. I consider this bad style since then the lambda is
@@ -705,11 +713,11 @@ The string is transformed according to `marginalia-bookmark-type-transformers'."
 
 (defun marginalia-annotate-bookmark (cand)
   "Annotate bookmark CAND with its file name and front context string."
-  (when-let ((bm (bookmark-get-bookmark-record (assoc cand bookmark-alist))))
-    (let ((front (alist-get 'front-context-string bm)))
+  (when-let ((bm (assoc cand bookmark-alist)))
+    (let ((front (bookmark-get-front-context-string bm)))
       (marginalia--fields
        ((marginalia--bookmark-type bm) :width 10 :face 'marginalia-type)
-       ((alist-get 'filename bm) :truncate 40 :face 'marginalia-file-name)
+       ((bookmark-get-filename bm) :truncate 40 :face 'marginalia-file-name)
        ((if (or (not front) (string= front ""))
             ""
           (concat (string-trim
@@ -799,9 +807,11 @@ component of a full file path."
 
 (defun marginalia--annotate-local-file (cand)
   "Annotate local file CAND."
-  (when-let (attrs (file-attributes (substitute-in-file-name
-                                     (marginalia--full-candidate cand))
-                                    'integer))
+  (when-let (attrs (ignore-errors
+                     ;; may throw permission denied errors
+                     (file-attributes (substitute-in-file-name
+                                       (marginalia--full-candidate cand))
+                                      'integer)))
     (marginalia--fields
      ((marginalia--file-owner attrs)
       :width 12 :face 'marginalia-file-owner)
@@ -877,8 +887,9 @@ These annotations are skipped for remote paths."
   "Format TIME as an absolute age."
   (let ((system-time-locale "C"))
     (format-time-string
-     (if (> (decoded-time-year (decode-time (current-time)))
-            (decoded-time-year (decode-time time)))
+     ;; decoded-time-year is only available on Emacs 27, use nth 5 here.
+     (if (> (nth 5 (decode-time (current-time)))
+            (nth 5 (decode-time time)))
          " %Y %b %d"
        "%b %d %H:%M")
      time)))
@@ -907,8 +918,8 @@ These annotations are skipped for remote paths."
 
 (defun marginalia-classify-by-command-name ()
   "Lookup category for current command."
-  (and marginalia--this-command
-       (alist-get marginalia--this-command marginalia-command-categories)))
+  (and marginalia--command
+       (alist-get marginalia--command marginalia-command-categories)))
 
 (defun marginalia-classify-original-category ()
   "Return original category reported by completion metadata."
@@ -957,10 +968,12 @@ looking for a regexp that matches the prompt."
        (with-selected-window (or (minibuffer-selected-window) (selected-window))
          (let ((marginalia--cache ,c) ;; Take the cache from the minibuffer
                (marginalia-truncate-width (min (/ ,w 2) marginalia-truncate-width))
-               (marginalia-align-offset (or marginalia-align-offset ,o))
                (marginalia--separator (if (>= ,w marginalia-separator-threshold) "    " " "))
-               (marginalia--margin (when (>= ,w (+ marginalia-margin-min marginalia-margin-threshold))
-                                     (make-string (- ,w marginalia-margin-threshold) 32))))
+               (marginalia--margin
+                (+ (or marginalia-align-offset ,o)
+                   (if (>= ,w (+ marginalia-margin-min marginalia-margin-threshold))
+                       (- ,w marginalia-margin-threshold)
+                     0))))
            ,@body)))))
 
 (defun marginalia--cache-reset ()
@@ -1016,9 +1029,11 @@ PROP is the property which is looked up."
        (run-hook-with-args-until-success 'marginalia-classifiers)))))
 
 (defun marginalia--minibuffer-setup ()
-  "Setup minibuffer for `marginalia-mode'.
+  "Setup the minibuffer for Marginalia.
 Remember `this-command' for `marginalia-classify-by-command-name'."
-  (setq marginalia--cache t marginalia--this-command this-command)
+  (setq marginalia--cache t marginalia--command this-command)
+  ;; Reset cache if window size changes, recompute alignment
+  (add-hook 'window-state-change-hook #'marginalia--cache-reset nil 'local)
   (marginalia--cache-reset))
 
 (defun marginalia--base-position (completions)
@@ -1035,7 +1050,7 @@ Remember `this-command' for `marginalia-classify-by-command-name'."
 ;;;###autoload
 (define-minor-mode marginalia-mode
   "Annotate completion candidates with richer information."
-  :global t
+  :global t :group 'marginalia
   (if marginalia-mode
       (progn
         ;; Ensure that we remember this-command in order to select the annotation function.
