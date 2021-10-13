@@ -145,10 +145,12 @@ determine it."
   :type '(alist :key-type symbol :value-type symbol))
 
 (defcustom marginalia-bookmark-type-transformers
-  `(("\\`bookmark-\\(.*?\\)-handler\\'" . "\\1")
-    ("default" . "File")
-    ("\\`\\(.*?\\)-+bookmark-jump\\(?:-handler\\)?\\'" . "\\1")
-    (".*" . ,#'capitalize))
+  (let ((words (regexp-opt '("handle" "handler" "jump" "bookmark"))))
+    `((,(format "-+%s-+" words) . "-")
+      (,(format "\\`%s-+" words) . "")
+      (,(format "-%s\\'" words) . "")
+      ("\\`default\\'" . "File")
+      (".*" . ,#'capitalize)))
   "List of bookmark type transformers."
   :type '(alist :key-type regexp :value-type (choice string function)))
 
@@ -571,13 +573,19 @@ keybinding since CAND includes it."
         (pcase (symbol-value sym)
           ('nil (propertize "nil" 'face 'marginalia-null))
           ('t (propertize "t" 'face 'marginalia-true))
-          ((pred keymapp) (propertize "<keymap>" 'face 'marginalia-value))
-          ((pred hash-table-p) (propertize "<hash-table>" 'face 'marginalia-value))
+          ((pred keymapp) (propertize "#<keymap>" 'face 'marginalia-value))
+          ((pred hash-table-p) (propertize "#<hash-table>" 'face 'marginalia-value))
+          ((pred syntax-table-p) (propertize "#<syntax-table>" 'face 'marginalia-value))
+          ;; Emacs BUG: abbrev-table-p throws an error
+          ((guard (ignore-errors (abbrev-table-p val))) (propertize "#<abbrev-table>" 'face 'marginalia-value))
+          ((pred char-table-p) (propertize "#<char-table>" 'face 'marginalia-value))
+          ((pred byte-code-function-p) (propertize "#<byte-code-function>" 'face 'marginalia-function))
           ((and (pred functionp) (pred symbolp))
            ;; NOTE: We are not consistent here, values are generally printed unquoted. But we
            ;; make an exception for function symbols to visually distinguish them from symbols.
            ;; I am not entirely happy with this, but we should not add quotation to every type.
            (propertize (format "#'%s" val) 'face 'marginalia-function))
+          ((pred recordp) (propertize (format "#<record %s>" (type-of val)) 'face 'marginalia-value))
           ((pred symbolp) (propertize (symbol-name val) 'face 'marginalia-symbol))
           ((pred numberp) (propertize (number-to-string val) 'face 'marginalia-number))
           (_ (let ((print-escape-newlines t)
