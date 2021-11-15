@@ -5,7 +5,7 @@
 ;; Author: Omar Antolín Camarena <omar@matem.unam.mx>, Daniel Mendler <mail@daniel-mendler.de>
 ;; Maintainer: Omar Antolín Camarena <omar@matem.unam.mx>, Daniel Mendler <mail@daniel-mendler.de>
 ;; Created: 2020
-;; Version: 0.9
+;; Version: 0.10
 ;; Package-Requires: ((emacs "26.1"))
 ;; Homepage: https://github.com/minad/marginalia
 
@@ -570,7 +570,7 @@ keybinding since CAND includes it."
                      marginalia-censor-variables)))
     (propertize "*****" 'face 'marginalia-null))
    (t (let ((val (symbol-value sym)))
-        (pcase (symbol-value sym)
+        (pcase val
           ('nil (propertize "nil" 'face 'marginalia-null))
           ('t (propertize "t" 'face 'marginalia-true))
           ((pred keymapp) (propertize "#<keymap>" 'face 'marginalia-value))
@@ -580,6 +580,8 @@ keybinding since CAND includes it."
           ;; Emacs BUG: abbrev-table-p throws an error
           ((guard (ignore-errors (abbrev-table-p val))) (propertize "#<abbrev-table>" 'face 'marginalia-value))
           ((pred char-table-p) (propertize "#<char-table>" 'face 'marginalia-value))
+          ((guard (and (fboundp 'subr-native-elisp-p) (subr-native-elisp-p val)))
+           (propertize "#<native-code-function>" 'face 'marginalia-function))
           ((pred byte-code-function-p) (propertize "#<byte-code-function>" 'face 'marginalia-function))
           ((and (pred functionp) (pred symbolp))
            ;; NOTE: We are not consistent here, values are generally printed unquoted. But we
