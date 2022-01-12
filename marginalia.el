@@ -347,9 +347,12 @@ for performance profiling of the annotators.")
 (defun marginalia--ellipsis ()
   "Return ellipsis."
   (or marginalia--ellipsis
+      ;; Emacs 28 offers the function `truncate-string-ellipsis'.
+      ;; Unfortunately we cannot use it here due to backward
+      ;; compatibility. Replicate it instead.
       (setq marginalia--ellipsis
             (cond
-             ((boundp 'truncate-string-ellipsis) truncate-string-ellipsis)
+             ((bound-and-true-p truncate-string-ellipsis))
              ((char-displayable-p ?…) "…")
              ("...")))))
 
