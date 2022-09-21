@@ -1050,10 +1050,11 @@ These annotations are skipped for remote paths."
       (concat
        (format #(" (%s)" 0 5 (face marginalia-key)) index)
        (marginalia--fields
-        ((if (cdr bufs)
-             (format "%d windows" (length bufs))
-           "1 window ")
+        ((format "win:%s" (length bufs))
          :face 'marginalia-size)
+        ((format "group:%s" (or (alist-get 'group tab) 'none))
+         :face 'marginalia-type
+         :width 30)
         ((if (memq 'current-tab tab)
              "*current tab*"
            (string-join bufs " "))
@@ -1092,7 +1093,7 @@ looking for a regexp that matches the prompt."
              when (string-match-p regexp prompt)
              return category)))
 
-(defun marginalia--cache-reset ()
+(defun marginalia--cache-reset (&rest _)
   "Reset the cache."
   (setq marginalia--cache (and marginalia--cache (> marginalia--cache-size 0)
                                (cons nil (make-hash-table :test #'equal
