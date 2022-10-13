@@ -424,10 +424,11 @@ FACE is the name of the face, with which the field should be propertized."
   (let ((flist (indirect-function fun)))
     (advice--p (if (eq 'macro (car-safe flist)) (cdr flist) flist))))
 
-;; Symbol class characters from Emacs 28 `help--symbol-class'
-;; ! and & are our additions
 (defun marginalia--symbol-class (s)
   "Return symbol class characters for symbol S.
+
+This function is an extension of `help--symbol-class'. It returns
+more fine-grained and more detailled symbol information.
 
 Function:
 f function
@@ -704,9 +705,15 @@ keybinding since CAND includes it."
 (defun marginalia-annotate-package (cand)
   "Annotate package CAND with its description summary."
   (when-let* ((pkg-alist (bound-and-true-p package-alist))
-              (pkg (intern-soft (replace-regexp-in-string "-[[:digit:]\\.-]+\\'" "" cand)))
-              ;; taken from `describe-package-1'
-              (desc (or (car (alist-get pkg pkg-alist))
+              (name (replace-regexp-in-string "-[0-9\\.-]+\\'" "" cand))
+              (pkg (intern-soft name))
+              (desc (or (unless (equal name cand)
+                          (cl-loop with version = (substring cand (1+ (length name)))
+                                   for d in (alist-get pkg pkg-alist)
+                                   if (equal (package-version-join (package-desc-version d)) version)
+                                   return d))
+                        ;; taken from `describe-package-1'
+                        (car (alist-get pkg pkg-alist))
                         (if-let (built-in (assq pkg package--builtins))
                             (package--from-builtin built-in)
                           (car (alist-get pkg package-archive-contents))))))
