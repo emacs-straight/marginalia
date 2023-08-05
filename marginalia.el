@@ -99,6 +99,7 @@ a relative age."
      (project-file marginalia-annotate-project-file)
      (buffer marginalia-annotate-buffer)
      (library marginalia-annotate-library)
+     (theme marginalia-annotate-theme)
      (tab marginalia-annotate-tab)
      (multi-category marginalia-annotate-multi-category)))
   "Annotator function registry.
@@ -134,7 +135,8 @@ determine it."
     ("\\<minor mode\\>" . minor-mode)
     ("\\<kill-ring\\>" . kill-ring)
     ("\\<tab by name\\>" . tab)
-    ("\\<library\\>" . library))
+    ("\\<library\\>" . library)
+    ("\\<theme\\>" . theme))
   "Associates regexps to match against minibuffer prompts with categories.
 The prompts are matched case-insensitively."
   :type '(alist :key-type regexp :value-type symbol))
@@ -1031,8 +1033,9 @@ These annotations are skipped for remote paths."
       (marginalia-annotate-file (expand-file-name cand root)))))
 
 (defvar-local marginalia--library-cache nil)
-(defun marginalia--library-cache ()
-  "Return library cache hash table."
+(defun marginalia--library-cache (library-path)
+  "Return hash table from library name to library file.
+LIBRARY-PATH is the library search path."
   (with-current-buffer
       (if-let (win (active-minibuffer-window))
           (window-buffer win)
@@ -1042,7 +1045,7 @@ These annotations are skipped for remote paths."
     (unless marginalia--library-cache
       (setq marginalia--library-cache (make-hash-table :test #'equal))
       ;; Search in reverse because of shadowing
-      (dolist (dir (reverse load-path))
+      (dolist (dir (reverse library-path))
         (dolist (file (ignore-errors
                         (directory-files dir 'full
                                          "\\.el\\(?:\\.gz\\)?\\'")))
@@ -1085,10 +1088,17 @@ These annotations are skipped for remote paths."
       (put-text-property 0 1 'marginalia--library-doc doc file))
     doc))
 
-(defun marginalia-annotate-library (cand)
-  "Annotate library CAND with documentation and path."
+(defun marginalia-annotate-theme (cand)
+  "Annotate theme CAND with documentation and path."
+  (marginalia-annotate-library (concat cand "-theme")
+                               (custom-theme--load-path)))
+
+(defun marginalia-annotate-library (cand &optional library-path)
+  "Annotate library CAND with documentation and path.
+LIBRARY-PATH is the library search path."
   (setq cand (marginalia--library-name cand))
-  (when-let (file (gethash cand (marginalia--library-cache)))
+  (when-let (file (gethash cand (marginalia--library-cache
+                                 (or library-path load-path))))
     (marginalia--fields
      ;; Display if the corresponding feature is loaded.
      ;; feature/=library file, but better than nothing.
