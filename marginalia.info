@@ -1,4 +1,4 @@
-This is docFtR40Z.info, produced by makeinfo version 6.8 from
+This is docZzHoQj.info, produced by makeinfo version 6.8 from
 marginalia.texi.
 
 INFO-DIR-SECTION Emacs misc features
@@ -7,7 +7,7 @@ START-INFO-DIR-ENTRY
 END-INFO-DIR-ENTRY
 
 
-File: docFtR40Z.info,  Node: Top,  Next: Configuration,  Up: (dir)
+File: docZzHoQj.info,  Node: Top,  Next: Configuration,  Up: (dir)
 
 marginalia.el - Marginalia in the minibuffer
 ********************************************
@@ -38,7 +38,7 @@ annotators or even disable the annotator with command
 * Contributions::
 
 
-File: docFtR40Z.info,  Node: Configuration,  Next: Information shown by the annotators,  Prev: Top,  Up: Top
+File: docZzHoQj.info,  Node: Configuration,  Next: Information shown by the annotators,  Prev: Top,  Up: Top
 
 1 Configuration
 ***************
@@ -69,7 +69,7 @@ commands.
        (marginalia-mode))
 
 
-File: docFtR40Z.info,  Node: Information shown by the annotators,  Next: Adding custom annotators or classifiers,  Prev: Configuration,  Up: Top
+File: docZzHoQj.info,  Node: Information shown by the annotators,  Next: Adding custom annotators or classifiers,  Prev: Configuration,  Up: Top
 
 2 Information shown by the annotators
 *************************************
@@ -84,7 +84,7 @@ more information on what the different classifications mean, see the
 docstring of ‘marginalia--symbol-class’.
 
 
-File: docFtR40Z.info,  Node: Adding custom annotators or classifiers,  Next: Disabling annotators builtin or lightweight annotators,  Prev: Information shown by the annotators,  Up: Top
+File: docZzHoQj.info,  Node: Adding custom annotators or classifiers,  Next: Disabling annotators builtin or lightweight annotators,  Prev: Information shown by the annotators,  Up: Top
 
 3 Adding custom annotators or classifiers
 *****************************************
@@ -175,7 +175,7 @@ this setting, after invoking ‘M-x describe-face RET’ you can cycle
 between all of these annotators using ‘marginalia-cycle’.
 
 
-File: docFtR40Z.info,  Node: Disabling annotators builtin or lightweight annotators,  Next: Icons in the minibuffer,  Prev: Adding custom annotators or classifiers,  Up: Top
+File: docZzHoQj.info,  Node: Disabling annotators builtin or lightweight annotators,  Next: Icons in the minibuffer,  Prev: Adding custom annotators or classifiers,  Up: Top
 
 4 Disabling annotators, builtin or lightweight annotators
 *********************************************************
@@ -185,19 +185,24 @@ preference you may want to use the builtin annotators or even no
 annotators by default and only activate the annotators on demand by
 invoking ‘marginalia-cycle’.
 
-   In order to use the builtin annotators by default, you can use the
-following command.  Replace ‘builtin’ by ‘none’ to disable annotators by
-default.
+   In order to disable an annotator permanently, the
+‘marginalia-annotator-registry’ can be modified.  For example if you
+prefer to never see file annotations, you can delete all file annotators
+from the registry.
 
-     (defun marginalia-use-builtin ()
-       (interactive)
-       (mapc
-        (lambda (x)
-          (setcdr x (cons 'builtin (remq 'builtin (cdr x)))))
-        marginalia-annotator-registry))
+     (setq marginalia-annotator-registry
+           (assq-delete-all 'file marginalia-annotator-registry))
 
-   If a completion category supports two annotators, you can toggle
-between those using this command.
+   To use the builtin annotators by default, you can run the following
+code.  Replace ‘builtin’ by ‘none’ to disable annotators by default.
+
+     (mapc (lambda (x)
+             (setcdr x (cons 'builtin (remq 'builtin (cdr x)))))
+           marginalia-annotator-registry)
+
+   As an alternative to ‘marginalia-cycle’, if a completion category
+supports two annotators, you can toggle between them using the following
+command.
 
      (defun marginalia-toggle ()
        (interactive)
@@ -218,37 +223,27 @@ configuration.  This can be achieved using an advice which calls
                      (customize-save-variable 'marginalia-annotator-registry
                                               marginalia-annotator-registry))))
 
-   In order to disable an annotator permanently, the
-‘marginalia-annotator-registry’ can be modified.  For example if you
-prefer to never see file annotations, you can delete all file annotators
-from the registry.
-
-     (setq marginalia-annotator-registry
-           (assq-delete-all 'file marginalia-annotator-registry))
-
 
-File: docFtR40Z.info,  Node: Icons in the minibuffer,  Next: Contributions,  Prev: Disabling annotators builtin or lightweight annotators,  Up: Top
+File: docZzHoQj.info,  Node: Icons in the minibuffer,  Next: Contributions,  Prev: Disabling annotators builtin or lightweight annotators,  Up: Top
 
 5 Icons in the minibuffer
 *************************
 
-Icons in the minibuffer completion UI are a commonly requested feature.
-Marginalia focuses on text annotations only.  The following packages are
+Marginalia focuses on text annotations.  The following packages are
 compatible with Marginalia and use special fonts to add icons in front
 of completion candidates.  There also exist related packages to enhance
-Dired, Ibuffer and other modes with icons consistently.
+Dired, Ibuffer, Corfu and other modes with icons consistently.
 
-   • all-the-icons-completion
-     (https://github.com/iyefrat/all-the-icons-completion): Relies on
-     the ‘all-the-icons.el’ package which configures multiple icon
-     fonts.
    • nerd-icons-completion
-     (https://github.com/rainstormstudio/nerd-icons-completion): Relies
-     on patched fonts including icons.  This package works even in the
-     terminal where only a single font can be used.
+     (https://github.com/rainstormstudio/nerd-icons-completion): Uses
+     the NerdFonts.  It can even work even in the terminal where only a
+     single font can be used.
+   • all-the-icons-completion
+     (https://github.com/iyefrat/all-the-icons-completion): Uses the
+     ‘all-the-icons.el’ package which configures multiple icon fonts.
 
 
-File: docFtR40Z.info,  Node: Contributions,  Prev: Icons in the minibuffer,  Up: Top
+File: docZzHoQj.info,  Node: Contributions,  Prev: Icons in the minibuffer,  Up: Top
 
 6 Contributions
 ***************
@@ -265,8 +260,8 @@ Node: Configuration1478
 Node: Information shown by the annotators2706
 Node: Adding custom annotators or classifiers3418
 Node: Disabling annotators builtin or lightweight annotators8334
-Node: Icons in the minibuffer10385
-Node: Contributions11344
+Node: Icons in the minibuffer10362
+Node: Contributions11218
 
 End Tag Table
 
