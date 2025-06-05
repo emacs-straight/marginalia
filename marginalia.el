@@ -5,7 +5,7 @@
 ;; Author: Omar Antolín Camarena <omar@matem.unam.mx>, Daniel Mendler <mail@daniel-mendler.de>
 ;; Maintainer: Omar Antolín Camarena <omar@matem.unam.mx>, Daniel Mendler <mail@daniel-mendler.de>
 ;; Created: 2020
-;; Version: 2.0
+;; Version: 2.1
 ;; Package-Requires: ((emacs "28.1") (compat "30"))
 ;; URL: https://github.com/minad/marginalia
 ;; Keywords: docs, help, matching, completion
@@ -1392,8 +1392,10 @@ Remember `this-command' for `marginalia-classify-by-command-name'."
                      if (or (not (eq fun 'builtin)) (marginalia--builtin-annotator-p md))
                      collect
                      (vector
-                      (capitalize (replace-regexp-in-string
-                                   ".*?-+annotate-+" "" (symbol-name fun)))
+                      (thread-last (symbol-name fun)
+                                   (replace-regexp-in-string ".*?-+annotate-+" "")
+                                   (replace-regexp-in-string "-+" " ")
+                                   capitalize)
                       (let ((i i))
                         (lambda ()
                           (interactive)
