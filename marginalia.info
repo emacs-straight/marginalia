@@ -1,4 +1,4 @@
-This is docUmVM5f.info, produced by makeinfo version 7.1.1 from
+This is docRZpdO8.info, produced by makeinfo version 7.1.1 from
 marginalia.texi.
 
 INFO-DIR-SECTION Emacs misc features
@@ -7,7 +7,7 @@ START-INFO-DIR-ENTRY
 END-INFO-DIR-ENTRY
 
 
-File: docUmVM5f.info,  Node: Top,  Next: Configuration,  Up: (dir)
+File: docRZpdO8.info,  Node: Top,  Next: Configuration,  Up: (dir)
 
 marginalia.el - Marginalia in the minibuffer
 ********************************************
@@ -38,7 +38,7 @@ annotators or even disable the annotator with command
 * Contributions::
 
 
-File: docUmVM5f.info,  Node: Configuration,  Next: Information shown by the annotators,  Prev: Top,  Up: Top
+File: docRZpdO8.info,  Node: Configuration,  Next: Information shown by the annotators,  Prev: Top,  Up: Top
 
 1 Configuration
 ***************
@@ -69,7 +69,7 @@ commands.
        (marginalia-mode))
 
 
-File: docUmVM5f.info,  Node: Information shown by the annotators,  Next: Adding custom annotators or classifiers,  Prev: Configuration,  Up: Top
+File: docRZpdO8.info,  Node: Information shown by the annotators,  Next: Adding custom annotators or classifiers,  Prev: Configuration,  Up: Top
 
 2 Information shown by the annotators
 *************************************
@@ -84,7 +84,7 @@ more information on what the different classifications mean, see the
 docstring of ‘marginalia--symbol-class’.
 
 
-File: docUmVM5f.info,  Node: Adding custom annotators or classifiers,  Next: Disabling annotators builtin or lightweight annotators,  Prev: Information shown by the annotators,  Up: Top
+File: docRZpdO8.info,  Node: Adding custom annotators or classifiers,  Next: Disabling annotators builtin or lightweight annotators,  Prev: Information shown by the annotators,  Up: Top
 
 3 Adding custom annotators or classifiers
 *****************************************
@@ -153,7 +153,7 @@ different annotators defined for the current category.
    Here's an example of a basic face annotator:
 
      (defun my-face-annotator (cand)
-       (when-let (sym (intern-soft cand))
+       (when-let* ((sym (intern-soft cand)))
          (concat (propertize " " 'display '(space :align-to center))
                  (propertize "The quick brown fox jumps over the lazy dog" 'face sym))))
 
@@ -171,7 +171,7 @@ this setting, after invoking ‘M-x describe-face RET’ you can cycle
 between all of these annotators using ‘marginalia-cycle’.
 
 
-File: docUmVM5f.info,  Node: Disabling annotators builtin or lightweight annotators,  Next: Icons in the minibuffer,  Prev: Adding custom annotators or classifiers,  Up: Top
+File: docRZpdO8.info,  Node: Disabling annotators builtin or lightweight annotators,  Next: Icons in the minibuffer,  Prev: Adding custom annotators or classifiers,  Up: Top
 
 4 Disabling annotators, builtin or lightweight annotators
 *********************************************************
@@ -220,7 +220,7 @@ configuration.  This can be achieved using an advice which calls
                                               marginalia-annotators))))
 
 
-File: docUmVM5f.info,  Node: Icons in the minibuffer,  Next: Contributions,  Prev: Disabling annotators builtin or lightweight annotators,  Up: Top
+File: docRZpdO8.info,  Node: Icons in the minibuffer,  Next: Contributions,  Prev: Disabling annotators builtin or lightweight annotators,  Up: Top
 
 5 Icons in the minibuffer
 *************************
@@ -233,7 +233,7 @@ packages to enhance Dired, Ibuffer, Corfu and other modes with icons
 consistently.
 
 
-File: docUmVM5f.info,  Node: Contributions,  Prev: Icons in the minibuffer,  Up: Top
+File: docRZpdO8.info,  Node: Contributions,  Prev: Icons in the minibuffer,  Up: Top
 
 6 Contributions
 ***************
@@ -249,9 +249,9 @@ Node: Top218
 Node: Configuration1480
 Node: Information shown by the annotators2708
 Node: Adding custom annotators or classifiers3412
-Node: Disabling annotators builtin or lightweight annotators8040
-Node: Icons in the minibuffer10012
-Node: Contributions10575
+Node: Disabling annotators builtin or lightweight annotators8043
+Node: Icons in the minibuffer10015
+Node: Contributions10578
 
 End Tag Table
 
