@@ -35,7 +35,6 @@ annotators or even disable the annotator with command
 * Adding custom annotators or classifiers::
 * Disabling annotators, builtin or lightweight annotators: Disabling annotators builtin or lightweight annotators.
 * Icons in the minibuffer::
-* Contributions::
 
 
 File: marginalia.info,  Node: Configuration,  Next: Information shown by the annotators,  Prev: Top,  Up: Top
@@ -220,7 +219,7 @@ configuration.  This can be achieved using an advice which calls
                                               marginalia-annotators))))
 
 
-File: marginalia.info,  Node: Icons in the minibuffer,  Next: Contributions,  Prev: Disabling annotators builtin or lightweight annotators,  Up: Top
+File: marginalia.info,  Node: Icons in the minibuffer,  Prev: Disabling annotators builtin or lightweight annotators,  Up: Top
 
 5 Icons in the minibuffer
 *************************
@@ -233,24 +232,13 @@ packages to enhance Dired, Ibuffer, Corfu and other modes with icons
 consistently.
 
 
-File: marginalia.info,  Node: Contributions,  Prev: Icons in the minibuffer,  Up: Top
-
-6 Contributions
-***************
-
-Since this package is part of GNU ELPA
-(https://elpa.gnu.org/packages/marginalia.html) contributions require a
-copyright assignment to the FSF.
-
-
 Tag Table:
 Node: Top217
-Node: Configuration1480
-Node: Information shown by the annotators2709
-Node: Adding custom annotators or classifiers3414
-Node: Disabling annotators builtin or lightweight annotators8046
-Node: Icons in the minibuffer10019
-Node: Contributions10583
+Node: Configuration1462
+Node: Information shown by the annotators2691
+Node: Adding custom annotators or classifiers3396
+Node: Disabling annotators builtin or lightweight annotators8028
+Node: Icons in the minibuffer10001
 
 End Tag Table
 
