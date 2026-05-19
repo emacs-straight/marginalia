@@ -33,10 +33,11 @@ Table of Contents
 1 Configuration
 ═══════════════
 
-  It is recommended to use Marginalia together with either the
-  [Vertico], [Mct], [Icomplete] or the default completion
-  UI. Furthermore Marginalia can be combined with [Embark] for action
-  support and [Consult], which provides many useful commands.
+  The package is available from [ELPA] or [MELPA]. You can install the
+  package with `package-install'. It is recommended to use Marginalia
+  together with either the [Vertico], [Mct], [Icomplete] or the default
+  completion UI. Furthermore Marginalia can be combined with [Embark]
+  for action support and [Consult], which provides many useful commands.
 
   ┌────
   │ ;; Enable rich annotations using the Marginalia package
@@ -56,6 +57,10 @@ Table of Contents
   │   (marginalia-mode))
   └────
 
+
+[ELPA] <https://elpa.gnu.org/devel/marginalia.html>
+
+[MELPA] <https://melpa.org/#/org-modern>
 
 [Vertico] <https://github.com/minad/vertico>
 
