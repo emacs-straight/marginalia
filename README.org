@@ -33,7 +33,7 @@ with command =marginalia-cycle=.
 
 * Configuration
 
-The package is available from [[https://elpa.gnu.org/devel/marginalia.html][ELPA]] or [[https://melpa.org/#/org-modern][MELPA]]. You can install the package with
+The package is available from [[https://elpa.gnu.org/packages/marginalia.html][ELPA]] or [[https://melpa.org/#/marginalia][MELPA]]. You can install the package with
 =package-install=. It is recommended to use Marginalia together with either the
 [[https://github.com/minad/vertico][Vertico]], [[https://github.com/protesilaos/mct][Mct]], [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Icomplete.html][Icomplete]] or the default completion UI. Furthermore Marginalia can
 be combined with [[https://github.com/oantolin/embark][Embark]] for action support and [[https://github.com/minad/consult][Consult]], which provides many
