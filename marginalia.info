@@ -44,9 +44,9 @@ File: marginalia.info,  Node: Configuration,  Next: Information shown by the ann
 
 The package is available from ELPA
 (https://elpa.gnu.org/packages/marginalia.html) or MELPA
-(https://melpa.org/#/marginalia).  You can install the package with
-‘package-install’.  It is recommended to use Marginalia together with
-either the Vertico (https://github.com/minad/vertico), Mct
+(https://releases.melpa.org/#/marginalia).  You can install the package
+with ‘package-install’.  It is recommended to use Marginalia together
+with either the Vertico (https://github.com/minad/vertico), Mct
 (https://github.com/protesilaos/mct), Icomplete
 (https://www.gnu.org/software/emacs/manual/html_node/emacs/Icomplete.html)
 or the default completion UI.  Furthermore Marginalia can be combined
@@ -239,10 +239,10 @@ consistently.
 Tag Table:
 Node: Top219
 Node: Configuration1464
-Node: Information shown by the annotators2877
-Node: Adding custom annotators or classifiers3582
-Node: Disabling annotators builtin or lightweight annotators8214
-Node: Icons in the minibuffer10187
+Node: Information shown by the annotators2886
+Node: Adding custom annotators or classifiers3591
+Node: Disabling annotators builtin or lightweight annotators8223
+Node: Icons in the minibuffer10196
 
 End Tag Table
 
