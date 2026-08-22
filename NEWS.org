@@ -2,6 +2,10 @@
 #+author: Omar Antolín Camarena, Daniel Mendler
 #+language: en
 
+* Version 2.12 (2026-08-21)
+
+- Documentation updates only and minor code cleanup.
+
 * Version 2.11 (2026-05-19)
 
 - Require Compat 31.

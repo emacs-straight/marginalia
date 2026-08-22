@@ -3,19 +3,25 @@
                          ━━━━━━━━━━━━━━━━━━━━━━
 
 
-1 Version 2.11 (2026-05-19)
+1 Version 2.12 (2026-08-21)
+═══════════════════════════
+
+  • Documentation updates only and minor code cleanup.
+
+
+2 Version 2.11 (2026-05-19)
 ═══════════════════════════
 
   • Require Compat 31.
 
 
-2 Version 2.10 (2026-03-09)
+3 Version 2.10 (2026-03-09)
 ═══════════════════════════
 
   • Avoid slowdown due to Tramp in `abbreviate-file-name'.
 
 
-3 Version 2.9 (2026-01-25)
+4 Version 2.9 (2026-01-25)
 ══════════════════════════
 
   • Add `marginalia-annotate-frame' for `select-by-frame-name' and
@@ -23,19 +29,19 @@
   • Fix `marginalia-annotate-embark-keybinding'.
 
 
-4 Version 2.8 (2026-01-17)
+5 Version 2.8 (2026-01-17)
 ══════════════════════════
 
   • Use `when-let*' instead of `when-let'.
 
 
-5 Version 2.7 (2025-12-31)
+6 Version 2.7 (2025-12-31)
 ══════════════════════════
 
   • Run annotation functions in original window and original buffer.
 
 
-6 Version 2.6 (2025-12-19)
+7 Version 2.6 (2025-12-19)
 ══════════════════════════
 
   • Stop providing an `annotation-function'. The `affixation-function'
@@ -43,7 +49,7 @@
     29.1.
 
 
-7 Version 2.5 (2025-11-15)
+8 Version 2.5 (2025-11-15)
 ══════════════════════════
 
   • Annotate definition prefix symbols which appear in
@@ -51,7 +57,7 @@
     `help-enable-completion-autoload' is enabled.
 
 
-8 Version 2.4 (2025-10-13)
+9 Version 2.4 (2025-10-13)
 ══════════════════════════
 
   • Require Emacs 29.
@@ -59,21 +65,21 @@
   • Drop obsolete variable alias `marginalia-annotator-registry'.
 
 
-9 Version 2.3 (2025-09-08)
-══════════════════════════
+10 Version 2.3 (2025-09-08)
+═══════════════════════════
 
   • Support new `project-buffer' category.
   • Improve remote file detection to avoid calling Tramp.
 
 
-10 Version 2.2 (2025-07-28)
+11 Version 2.2 (2025-07-28)
 ═══════════════════════════
 
   • Support `uniquify-get-unique-names' used by
     `project-switch-to-buffer' in Emacs 31.
 
 
-11 Version 2.1 (2025-06-04)
+12 Version 2.1 (2025-06-04)
 ═══════════════════════════
 
   • Rename `marginalia-annotator-registry' to `marginalia-annotators'
@@ -81,21 +87,21 @@
   • Add context menu in minibuffer. Enable `context-menu-mode' to try.
 
 
-12 Version 2.0 (2025-03-17)
+13 Version 2.0 (2025-03-17)
 ═══════════════════════════
 
   • `marginalia--variable-value': Add tool tip for integers with
     hexadecimal, octal and character representation.
 
 
-13 Version 1.8 (2024-12-22)
+14 Version 1.8 (2024-12-22)
 ═══════════════════════════
 
   • Require Emacs 28.1.
   • Add G symbol class for customization groups.
 
 
-14 Version 1.7 (2024-07-26)
+15 Version 1.7 (2024-07-26)
 ═══════════════════════════
 
   • Bump Compat dependency to Compat 30.
@@ -104,7 +110,7 @@
       categories and annotation functions.
 
 
-15 Version 1.6 (2024-04-04)
+16 Version 1.6 (2024-04-04)
 ═══════════════════════════
 
   • `marginalia-annotate-buffer': Handle dead buffers, which can occur
@@ -112,14 +118,14 @@
     the actual buffer objects during completion.
 
 
-16 Version 1.5 (2023-12-27)
+17 Version 1.5 (2023-12-27)
 ═══════════════════════════
 
   • `marginalia-annotate-bookmark': Show location and more context.
   • `marginalia-annotate-tab': Show tab index starting from one.
 
 
-17 Version 1.4 (2023-12-01)
+18 Version 1.4 (2023-12-01)
 ═══════════════════════════
 
   • `marginalia-annotate-theme': New annotator based on
@@ -129,7 +135,7 @@
     from file annotations.
 
 
-18 Version 1.3 (2023-07-02)
+19 Version 1.3 (2023-07-02)
 ═══════════════════════════
 
   • `marginalia-classify-by-prompt': Use case-insensitive matching.
@@ -140,7 +146,7 @@
     only in recursive minibuffers.
 
 
-19 Version 1.2 (2023-04-17)
+20 Version 1.2 (2023-04-17)
 ═══════════════════════════
 
   • `marginalia-classify-by-command-name': Resolve function aliases and
@@ -148,7 +154,7 @@
     category.
 
 
-20 Version 1.1 (2023-02-17)
+21 Version 1.1 (2023-02-17)
 ═══════════════════════════
 
   • Require the `compat' library.
@@ -162,7 +168,7 @@
   • Add `help-echo' to file dates showing the exact date.
 
 
-21 Version 1.0 (2022-12-22)
+22 Version 1.0 (2022-12-22)
 ═══════════════════════════
 
   • Start of changelog.
