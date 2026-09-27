@@ -2,6 +2,10 @@
 #+author: Omar Antolín Camarena, Daniel Mendler
 #+language: en
 
+* Version 2.13 (2026-09-26)
+
+- Minor refactoring.
+
 * Version 2.12 (2026-08-21)
 
 - Documentation updates only and minor code cleanup.
